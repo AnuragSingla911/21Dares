@@ -64,7 +64,11 @@ export function GameBoard({ state, onMove, onQuit, onSettings }: Props) {
 
         <ActivePlayerBanner
           name={active.name}
-          isComputerThinking={state.isComputerThinking}
+          isComputerThinking={
+            state.isComputerThinking ||
+            (state.isAnimating &&
+              isComputerPlayer(state, state.currentPlayerIndex))
+          }
         />
 
         <GlassPanel className="space-y-4">

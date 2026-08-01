@@ -227,15 +227,14 @@ export function useGame() {
       speakNumbers(numbers, settingsRef.current.soundEnabled);
 
       animTimerRef.current = setTimeout(() => {
-        let losing = false;
-        setGameState((prev) => {
-          if (!prev) return prev;
-          const next = finishMove(prev, numbers, playerIndex);
-          losing = next.status === "losing";
-          return next;
-        });
+        const prev = stateRef.current;
+        if (!prev) return;
 
-        if (losing) {
+        const next = finishMove(prev, numbers, playerIndex);
+        stateRef.current = next;
+        setGameState(next);
+
+        if (next.status === "losing") {
           losingTimerRef.current = setTimeout(() => {
             setScreen("losing");
             window.setTimeout(() => {
@@ -244,16 +243,12 @@ export function useGame() {
               lockRef.current = false;
             }, LOSING_MS);
           }, 50);
-        } else {
-          lockRef.current = false;
-          const next = stateRef.current;
-          if (
-            next &&
-            next.status === "playing" &&
-            isComputerPlayer(next, next.currentPlayerIndex)
-          ) {
-            scheduleComputerRef.current();
-          }
+          return;
+        }
+
+        lockRef.current = false;
+        if (isComputerPlayer(next, next.currentPlayerIndex)) {
+          scheduleComputerRef.current();
         }
       }, ANIMATION_MS);
     },
