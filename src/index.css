@@ -457,35 +457,6 @@
     animation: fade-in 0.35s ease;
   }
 
-  .voice-panel {
-    border-radius: 1rem;
-    padding: 0.9rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .mic-btn {
-    flex-shrink: 0;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.08);
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .mic-btn:hover:not(:disabled) {
-    transform: scale(1.05);
-  }
-
-  .mic-btn-active {
-    border-color: rgba(34, 211, 238, 0.55);
-    background: rgba(34, 211, 238, 0.18);
-    box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.12);
-  }
-
   .kbd {
     display: inline-flex;
     align-items: center;

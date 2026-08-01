@@ -74,8 +74,6 @@ export function loadSettings(): AppSettings {
   if (!parsed) return { ...DEFAULT_SETTINGS };
   return {
     soundEnabled: parsed.soundEnabled ?? DEFAULT_SETTINGS.soundEnabled,
-    voiceInputEnabled:
-      parsed.voiceInputEnabled ?? DEFAULT_SETTINGS.voiceInputEnabled,
     dareTimerSeconds:
       parsed.dareTimerSeconds ?? DEFAULT_SETTINGS.dareTimerSeconds,
   };

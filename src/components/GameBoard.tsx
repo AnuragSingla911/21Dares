@@ -2,29 +2,22 @@ import type { GameState } from "../types/game";
 import type { CountChoice } from "../logic/counting";
 import { remainingToTwentyOne } from "../logic/counting";
 import { isComputerPlayer } from "../logic/game";
+import { useKeyboardTurn } from "../hooks/useKeyboardTurn";
 import { ActivePlayerBanner } from "./ActivePlayerBanner";
 import { GlassPanel } from "./GlassPanel";
 import { NumberTrack } from "./NumberTrack";
 import { ScoreBoard } from "./ScoreBoard";
 import { TurnControls } from "./TurnControls";
 import { TurnHistory } from "./TurnHistory";
-import { VoiceInputPanel } from "./VoiceInputPanel";
 
 type Props = {
   state: GameState;
-  voiceInputEnabled: boolean;
   onMove: (count: CountChoice) => void;
   onQuit: () => void;
   onSettings: () => void;
 };
 
-export function GameBoard({
-  state,
-  voiceInputEnabled,
-  onMove,
-  onQuit,
-  onSettings,
-}: Props) {
+export function GameBoard({ state, onMove, onQuit, onSettings }: Props) {
   const active = state.players[state.currentPlayerIndex]!;
   const controlsLocked =
     state.isAnimating ||
@@ -33,6 +26,12 @@ export function GameBoard({
     state.status !== "playing";
 
   const remaining = remainingToTwentyOne(state.currentNumber);
+
+  useKeyboardTurn({
+    enabled: !controlsLocked,
+    currentNumber: state.currentNumber,
+    onMove,
+  });
 
   return (
     <section className="screen-scroll">
@@ -91,13 +90,10 @@ export function GameBoard({
           />
         </GlassPanel>
 
-        <VoiceInputPanel
-          enabled
-          voiceEnabled={voiceInputEnabled}
-          currentNumber={state.currentNumber}
-          disabled={controlsLocked}
-          onMove={onMove}
-        />
+        <p className="text-center text-sm text-slate-400">
+          Keyboard: press <kbd className="kbd">1</kbd> <kbd className="kbd">2</kbd>{" "}
+          <kbd className="kbd">3</kbd> for your move
+        </p>
 
         <TurnControls
           currentNumber={state.currentNumber}

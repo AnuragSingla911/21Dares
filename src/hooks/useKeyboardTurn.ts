@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { CountChoice } from "../logic/counting";
 import { isValidMove } from "../logic/counting";
-import { parseKeyboardTurn } from "../logic/parseSpeech";
+import { parseKeyboardTurn } from "../logic/keyboard";
 
 type Options = {
   enabled: boolean;
@@ -21,30 +21,45 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 /**
- * Listen for keys 1, 2, 3 (and numpad) to make a move.
+ * Single stable keydown listener for keys 1, 2, 3 (and numpad).
  */
 export function useKeyboardTurn({
   enabled,
   currentNumber,
   onMove,
 }: Options) {
-  useEffect(() => {
-    if (!enabled) return;
+  const enabledRef = useRef(enabled);
+  const currentRef = useRef(currentNumber);
+  const onMoveRef = useRef(onMove);
 
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
+
+  useEffect(() => {
+    currentRef.current = currentNumber;
+  }, [currentNumber]);
+
+  useEffect(() => {
+    onMoveRef.current = onMove;
+  }, [onMove]);
+
+  useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      if (!enabledRef.current) return;
       if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) {
         return;
       }
       if (isTypingTarget(event.target)) return;
 
       const count = parseKeyboardTurn(event.key);
-      if (!count || !isValidMove(currentNumber, count)) return;
+      if (!count || !isValidMove(currentRef.current, count)) return;
 
       event.preventDefault();
-      onMove(count);
+      onMoveRef.current(count);
     };
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [enabled, currentNumber, onMove]);
+  }, []);
 }

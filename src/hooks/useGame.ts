@@ -31,7 +31,7 @@ import {
 } from "../utils/storage";
 import { speakNumbers, cancelSpeech } from "../utils/speech";
 
-const ANIMATION_MS = 650;
+const ANIMATION_MS = 400;
 const LOSING_MS = 2200;
 
 export function useGame() {

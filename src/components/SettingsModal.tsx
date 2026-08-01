@@ -13,7 +13,7 @@ export function SettingsModal({ open, settings, onClose, onSave }: Props) {
 
   return (
     <SettingsModalInner
-      key={`${settings.soundEnabled}-${settings.voiceInputEnabled}-${settings.dareTimerSeconds}`}
+      key={`${settings.soundEnabled}-${settings.dareTimerSeconds}`}
       settings={settings}
       onClose={onClose}
       onSave={onSave}
@@ -32,9 +32,6 @@ function SettingsModalInner({
 }) {
   const titleId = useId();
   const [soundEnabled, setSoundEnabled] = useState(settings.soundEnabled);
-  const [voiceInputEnabled, setVoiceInputEnabled] = useState(
-    settings.voiceInputEnabled,
-  );
   const [dareTimerSeconds, setDareTimerSeconds] = useState(
     settings.dareTimerSeconds,
   );
@@ -59,16 +56,6 @@ function SettingsModalInner({
             className="toggle"
             checked={soundEnabled}
             onChange={(e) => setSoundEnabled(e.target.checked)}
-          />
-        </label>
-
-        <label className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-200">
-          <span>Voice input (speak your numbers)</span>
-          <input
-            type="checkbox"
-            className="toggle"
-            checked={voiceInputEnabled}
-            onChange={(e) => setVoiceInputEnabled(e.target.checked)}
           />
         </label>
 
@@ -98,7 +85,7 @@ function SettingsModalInner({
             type="button"
             className="btn-primary flex-1"
             onClick={() => {
-              onSave({ soundEnabled, voiceInputEnabled, dareTimerSeconds });
+              onSave({ soundEnabled, dareTimerSeconds });
               onClose();
             }}
           >

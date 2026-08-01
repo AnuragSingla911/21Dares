@@ -44,12 +44,11 @@ export function HowToPlayModal({ open, onClose }: Props) {
 
         <div className="mt-4 rounded-xl bg-white/5 border border-white/10 p-4">
           <p className="text-xs uppercase tracking-wider text-cyan-300 mb-2">
-            Voice &amp; keyboard
+            Keyboard shortcuts
           </p>
           <ul className="text-sm text-slate-200 space-y-1 list-disc list-inside">
             <li>Press <strong>1</strong>, <strong>2</strong>, or <strong>3</strong> to say that many numbers.</li>
-            <li>Or speak the numbers aloud, e.g. “nine” or “nine, ten, eleven”.</li>
-            <li>Allow microphone access when prompted for voice input.</li>
+            <li>Or tap the buttons on screen.</li>
           </ul>
         </div>
 

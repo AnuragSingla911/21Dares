@@ -55,7 +55,6 @@ export type GameState = {
 
 export type AppSettings = {
   soundEnabled: boolean;
-  voiceInputEnabled: boolean;
   dareTimerSeconds: number;
 };
 
