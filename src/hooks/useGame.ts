@@ -144,6 +144,9 @@ export function useGame() {
     else setScreen("playing");
   }, [clearTimers]);
 
+  const applyMoveRef = useRef<(count: CountChoice) => void>(() => undefined);
+  const scheduleComputerRef = useRef<() => void>(() => undefined);
+
   const finishMove = useCallback(
     (prev: GameState, numbers: number[], playerIndex: 0 | 1) => {
       const player = prev.players[playerIndex]!;
@@ -202,7 +205,9 @@ export function useGame() {
     (count: CountChoice) => {
       const state = stateRef.current;
       if (!state || state.status !== "playing") return;
-      if (lockRef.current || state.isAnimating || state.isComputerThinking) return;
+      const computerTurn = isComputerPlayer(state, state.currentPlayerIndex);
+      if (lockRef.current || state.isAnimating) return;
+      if (!computerTurn && state.isComputerThinking) return;
       if (!isValidMove(state.currentNumber, count)) return;
 
       lockRef.current = true;
@@ -222,86 +227,106 @@ export function useGame() {
       speakNumbers(numbers, settingsRef.current.soundEnabled);
 
       animTimerRef.current = setTimeout(() => {
+        let losing = false;
         setGameState((prev) => {
           if (!prev) return prev;
-          return finishMove(prev, numbers, playerIndex);
+          const next = finishMove(prev, numbers, playerIndex);
+          losing = next.status === "losing";
+          return next;
         });
 
-        losingTimerRef.current = setTimeout(() => {
-          const latest = stateRef.current;
-          if (latest?.status === "losing") {
+        if (losing) {
+          losingTimerRef.current = setTimeout(() => {
             setScreen("losing");
             window.setTimeout(() => {
-              setGameState((p) =>
-                p ? { ...p, status: "dare" } : p,
-              );
+              setGameState((p) => (p ? { ...p, status: "dare" } : p));
               setScreen("dare");
               lockRef.current = false;
             }, LOSING_MS);
-          } else {
-            lockRef.current = false;
+          }, 50);
+        } else {
+          lockRef.current = false;
+          const next = stateRef.current;
+          if (
+            next &&
+            next.status === "playing" &&
+            isComputerPlayer(next, next.currentPlayerIndex)
+          ) {
+            scheduleComputerRef.current();
           }
-        }, 50);
+        }
       }, ANIMATION_MS);
     },
     [finishMove],
   );
 
-  // Computer turn — mark thinking asynchronously to avoid sync setState-in-effect
-  useEffect(() => {
-    if (!gameState || screen !== "playing") return;
-    if (gameState.status !== "playing") return;
-    if (gameState.isAnimating) return;
-    if (lockRef.current) return;
-    if (!isComputerPlayer(gameState, gameState.currentPlayerIndex)) return;
+  const scheduleComputerTurn = useCallback(() => {
+    const state = stateRef.current;
+    if (!state || state.status !== "playing") return;
+    if (state.isAnimating || state.isComputerThinking) return;
+    if (!isComputerPlayer(state, state.currentPlayerIndex)) return;
+    if (computerTimerRef.current) return;
 
-    let cancelled = false;
-    const difficulty = gameState.computerDifficulty;
+    const difficulty = state.computerDifficulty;
+    setGameState((prev) =>
+      prev ? { ...prev, isComputerThinking: true } : prev,
+    );
 
-    const thinkTimer = window.setTimeout(() => {
-      if (cancelled) return;
-      setGameState((prev) =>
-        prev ? { ...prev, isComputerThinking: true } : prev,
-      );
-
-      const delay = getComputerDelayMs(difficulty);
-      computerTimerRef.current = setTimeout(() => {
-        if (cancelled) return;
-        const current = stateRef.current;
-        if (!current || current.status !== "playing") {
-          lockRef.current = false;
-          return;
-        }
-        const move = selectComputerMove(
-          current.currentNumber,
-          current.computerDifficulty,
-        );
+    const delay = getComputerDelayMs(difficulty);
+    computerTimerRef.current = setTimeout(() => {
+      computerTimerRef.current = null;
+      const current = stateRef.current;
+      if (
+        !current ||
+        current.status !== "playing" ||
+        !isComputerPlayer(current, current.currentPlayerIndex)
+      ) {
         setGameState((prev) =>
           prev ? { ...prev, isComputerThinking: false } : prev,
         );
-        window.setTimeout(() => {
-          if (!cancelled) applyMove(move);
-        }, 30);
-      }, delay);
-    }, 0);
+        return;
+      }
 
-    return () => {
-      cancelled = true;
-      window.clearTimeout(thinkTimer);
-      if (computerTimerRef.current) clearTimeout(computerTimerRef.current);
-    };
-    // Intentionally omit isComputerThinking / full gameState so marking
-    // "thinking" does not cancel the scheduled computer move.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- gated on turn fields only
+      const move = selectComputerMove(
+        current.currentNumber,
+        current.computerDifficulty,
+      );
+      if (stateRef.current) {
+        stateRef.current = {
+          ...stateRef.current,
+          isComputerThinking: false,
+        };
+      }
+      setGameState((prev) =>
+        prev ? { ...prev, isComputerThinking: false } : prev,
+      );
+      applyMoveRef.current(move);
+    }, delay);
+  }, []);
+
+  useEffect(() => {
+    applyMoveRef.current = applyMove;
+    scheduleComputerRef.current = scheduleComputerTurn;
+  }, [applyMove, scheduleComputerTurn]);
+
+  // Run computer turn when a new round starts with the computer as starter
+  useEffect(() => {
+    if (!gameState || screen !== "playing") return;
+    if (gameState.status !== "playing") return;
+    if (gameState.isAnimating || gameState.isComputerThinking) return;
+    if (!isComputerPlayer(gameState, gameState.currentPlayerIndex)) return;
+
+    const timer = window.setTimeout(() => scheduleComputerRef.current(), 0);
+    return () => window.clearTimeout(timer);
   }, [
-    gameState?.status,
+    gameState?.roundNumber,
+    gameState?.startingPlayerIndex,
     gameState?.currentPlayerIndex,
-    gameState?.currentNumber,
     gameState?.isAnimating,
+    gameState?.status,
     gameState?.mode,
-    gameState?.computerDifficulty,
     screen,
-    applyMove,
+    gameState,
   ]);
 
   const completeDare = useCallback(() => {
