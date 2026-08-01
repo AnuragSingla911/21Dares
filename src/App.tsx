@@ -52,6 +52,7 @@ export default function App() {
       {game.screen === "playing" && game.gameState && (
         <GameBoard
           state={game.gameState}
+          voiceInputEnabled={game.settings.voiceInputEnabled}
           onMove={game.applyMove}
           onQuit={() => setQuitConfirm(true)}
           onSettings={() => setSettingsOpen(true)}

@@ -34,7 +34,10 @@ export function TurnControls({ currentNumber, disabled, onSelect }: Props) {
                 : `${LABELS[count]} unavailable`
             }
           >
-            <span className="turn-btn-label">{LABELS[count]}</span>
+            <span className="turn-btn-label">
+              {LABELS[count]}
+              <kbd className="kbd kbd-inline">{count}</kbd>
+            </span>
             <span className="turn-btn-preview">
               {valid ? preview.join(", ") : "—"}
             </span>

@@ -8,15 +8,23 @@ import { NumberTrack } from "./NumberTrack";
 import { ScoreBoard } from "./ScoreBoard";
 import { TurnControls } from "./TurnControls";
 import { TurnHistory } from "./TurnHistory";
+import { VoiceInputPanel } from "./VoiceInputPanel";
 
 type Props = {
   state: GameState;
+  voiceInputEnabled: boolean;
   onMove: (count: CountChoice) => void;
   onQuit: () => void;
   onSettings: () => void;
 };
 
-export function GameBoard({ state, onMove, onQuit, onSettings }: Props) {
+export function GameBoard({
+  state,
+  voiceInputEnabled,
+  onMove,
+  onQuit,
+  onSettings,
+}: Props) {
   const active = state.players[state.currentPlayerIndex]!;
   const controlsLocked =
     state.isAnimating ||
@@ -82,6 +90,14 @@ export function GameBoard({ state, onMove, onQuit, onSettings }: Props) {
             isAnimating={state.isAnimating}
           />
         </GlassPanel>
+
+        <VoiceInputPanel
+          enabled
+          voiceEnabled={voiceInputEnabled}
+          currentNumber={state.currentNumber}
+          disabled={controlsLocked}
+          onMove={onMove}
+        />
 
         <TurnControls
           currentNumber={state.currentNumber}

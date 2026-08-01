@@ -42,6 +42,17 @@ export function HowToPlayModal({ open, onClose }: Props) {
           <li>The player with the most points wins the match.</li>
         </ol>
 
+        <div className="mt-4 rounded-xl bg-white/5 border border-white/10 p-4">
+          <p className="text-xs uppercase tracking-wider text-cyan-300 mb-2">
+            Voice &amp; keyboard
+          </p>
+          <ul className="text-sm text-slate-200 space-y-1 list-disc list-inside">
+            <li>Press <strong>1</strong>, <strong>2</strong>, or <strong>3</strong> to say that many numbers.</li>
+            <li>Or speak the numbers aloud, e.g. “nine” or “nine, ten, eleven”.</li>
+            <li>Allow microphone access when prompted for voice input.</li>
+          </ul>
+        </div>
+
         <div className="mt-5 rounded-xl bg-white/5 border border-white/10 p-4">
           <p className="text-xs uppercase tracking-wider text-cyan-300 mb-2">
             Example

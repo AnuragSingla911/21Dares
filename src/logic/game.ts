@@ -10,6 +10,7 @@ import { INITIAL_SKIPS } from "./counting";
 
 export const DEFAULT_SETTINGS: AppSettings = {
   soundEnabled: true,
+  voiceInputEnabled: true,
   dareTimerSeconds: 60,
 };
 
