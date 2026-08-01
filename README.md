@@ -4,6 +4,10 @@ A polished, mobile-friendly two-player web game. Count from 1 to 21 — the play
 
 **Count smart. Avoid 21. Or face the dare!**
 
+## Play live
+
+**https://anuragsingla911.github.io/21Dares/**
+
 ## Stack
 
 - React + TypeScript + Vite
